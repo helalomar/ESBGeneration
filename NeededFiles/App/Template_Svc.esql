@@ -1,0 +1,158 @@
+
+
+BROKER SCHEMA Service
+-- **************************************************************** --
+-- Developer : {CreatorName} --
+-- Date : {CreationDate} --
+-- Version : 0.1 --
+-- Implementation ID : --
+-- Comments :
+-- **************************************************************** --
+
+CREATE COMPUTE MODULE {OperationName}_Svc_ErrorHandler_WS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		IF EXISTS(Environment.Variables.Context.OriginalProperties[]) THEN
+			SET OutputRoot.Properties = Environment.Variables.Context.OriginalProperties;
+		ELSE
+			SET OutputRoot.Properties = InputRoot.Properties;
+		END IF;
+		SET OutputLocalEnvironment.Destination.SOAP.Reply.ReplyIdentifier = Environment.Variables.Context.SOAPReplyID;
+
+		SET OutputRoot.XMLNSC.alr:{OperationName}Rs.(XMLNSC.NamespaceDecl)xmlns:alr = alr;
+		SET OutputRoot.XMLNSC.alr:{OperationName}Rs.(XMLNSC.NamespaceDecl)xmlns:alr1 = alr1;
+
+		DECLARE FailureStatusCode CHARACTER NULLIF(COALESCE(Environment.Variables.Status.StatusCd, Environment.Variables.StatusCd, SuccessErrorCode), SuccessErrorCode);
+
+		IF FailureStatusCode IS NULL THEN
+			SET OutputRoot.XMLNSC.alr:{OperationName}Rs.Hdr.alr1:Status.alr1:StatusCd = GeneralIntegrationErrorCode;
+			SET OutputRoot.XMLNSC.alr:{OperationName}Rs.Hdr.alr1:Status.alr1:StatusDesc = GeneralIntegrationErrorDesc;
+		ELSE
+			SET OutputRoot.XMLNSC.alr:{OperationName}Rs.Hdr.alr1:Status.alr1:StatusCd = COALESCE(Environment.Variables.Status.StatusCd, Environment.Variables.StatusCd);
+			SET OutputRoot.XMLNSC.alr:{OperationName}Rs.Hdr.alr1:Status.alr1:StatusDesc = COALESCE(Environment.Variables.Status.StatusDesc, Environment.Variables.StatusDesc);
+
+		END IF;
+		SET OutputRoot.XMLNSC.alr:{OperationName}Rs.Hdr.alr1:RqID = Environment.Variables.MsgRqHdr.Msg.RqID;
+		RETURN TRUE;
+	END;
+END MODULE;
+
+
+
+CREATE COMPUTE MODULE {OperationName}_AuditVarsContextRouting_WS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		DECLARE ENV REFERENCE TO Environment.Variables;
+		DECLARE inHdr REFERENCE TO InputRoot.XMLNSC.alr:{OperationName}Rq.Hdr;
+		DECLARE inBody REFERENCE TO InputRoot.XMLNSC.alr:{OperationName}Rq.Body;
+
+		SET ENV.Context.OriginalProperties = InputRoot.Properties;
+		SET ENV.Context.SOAPReplyID = InputLocalEnvironment.Destination.SOAP.Reply.ReplyIdentifier;
+
+		SET OutputLocalEnvironment.Destination.RouterList.DestinationData[1].labelName = '{BEName}';
+		CREATE FIELD ENV.Context.{OperationName}Rq;
+		DECLARE ref REFERENCE TO ENV.Context.{OperationName}Rq;
+		SET ref.MsgId = SUBSTRING(CAST(ENV.MsgId AS CHAR) FROM 3 FOR 48);
+		SET ref.CICNum = inHdr.*:Agt.*:CICNum;
+
+		SET ref.serviceID = inHdr.alr1:Msg.alr1:SvcID;
+		SET ref.SubSvcID = inHdr.alr1:Msg.alr1:SubSvcID;
+		SET ref.msgID = inHdr.alr1:Msg.alr1:RqID;
+		SET ref.msgTimeStamp = CAST((CURRENT_TIMESTAMP - TIMESTAMP '1970-01-01 00:00:00') SECOND AS INTEGER);
+		SET ref.channelID = inHdr.alr1:Sys.alr1:ChID;
+		SET ref.userID = inHdr.alr1:Sys.alr1:LoginInfo.alr1:UserID;
+		SET ref.language = COALESCE(inHdr.alr1:Sys.alr1:SessionLang, 'EN');
+
+		--Body
+		--SET ref.dossierID = inBody.DossierID;
+		{RqBodyDec}
+
+
+		--SET ENV.AuditVars.UsrDef1 = ref.dossierID;
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;
+
+	CREATE PROCEDURE CopyEntireMessage() BEGIN
+		SET OutputRoot = InputRoot;
+	END;
+
+
+END MODULE;
+
+CREATE COMPUTE MODULE {OperationName}_ParseRsMsg_WS
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		CALL CopyMessageHeaders();
+		DECLARE ENV REFERENCE TO Environment.Variables;		
+
+
+		SET OutputLocalEnvironment.Destination.SOAP.Reply.ReplyIdentifier = Environment.Variables.Context.SOAPReplyID;
+		SET OutputRoot.Properties.Encoding = 546;
+		SET OutputRoot.Properties.CodedCharSetId = 1208;
+		SET OutputRoot.Properties = ENV.Context.OriginalProperties;
+
+		SET OutputRoot.XMLNSC.alr:{OperationName}Rs.(XMLNSC.NamespaceDecl)xmlns:alr = alr;
+		SET OutputRoot.XMLNSC.alr:{OperationName}Rs.(XMLNSC.NamespaceDecl)xmlns:alr1 = alr1;
+		DECLARE {OperationName}Rq REFERENCE TO ENV.Context.{OperationName}Rq;
+
+		CREATE FIELD OutputRoot.XMLNSC.alr:{OperationName}Rs.Hdr;
+		DECLARE OutHdr REFERENCE TO OutputRoot.XMLNSC.alr:{OperationName}Rs.Hdr;
+		DECLARE OutBody REFERENCE TO OutputRoot.XMLNSC.alr:{OperationName}Rs.Body;
+		DECLARE {BEName}Res REFERENCE TO ENV.Context.{BEName}Rs;		
+
+											
+		IF EXISTS (ENV.AuditVars.RejectnReason[])THEN
+			IF ENV.AuditVars.RejectnReason='200' THEN
+				SET OutHdr.alr1:Status.alr1:StatusCd = SuccessErrorCode;
+				SET OutHdr.alr1:Status.alr1:StatusDesc = SuccessErrorDesc;
+			ELSE
+				CALL util.GetErrorMapping( '{BE}Error',
+				'EAIError',
+				'*',
+				'*',
+				ENV.Context.{BEName}Rs.response.statusCode,
+				OutHdr.alr1:Status.alr1:StatusCd,
+				OutHdr.alr1:Status.alr1:StatusDesc,
+				Environment.Variables.ErrorMapping.TARGETVAL3);
+				IF {OperationName}Rq.language = 'AR' THEN
+					SET OutHdr.alr1:Status.alr1:StatusDesc = Environment.Variables.ErrorMapping.TARGETVAL3;
+				END IF;
+			END IF;
+		ELSE
+			SET OutHdr.alr1:Status.alr1:StatusCd = BackendErrorCode;
+			SET OutHdr.alr1:Status.alr1:StatusDesc = BackendErrorDesc;
+		END IF;		
+
+
+
+		SET OutHdr.alr1:RqID = Environment.Variables.MsgRqHdr.Msg.RqID;
+
+		--Body
+		{RsBodyDec}
+
+		RETURN TRUE;
+	END;
+
+	CREATE PROCEDURE CopyMessageHeaders() BEGIN
+		DECLARE I INTEGER 1;
+		DECLARE J INTEGER;
+		SET J = CARDINALITY(InputRoot.*[]);
+		WHILE I < J DO
+			SET OutputRoot.*[I] = InputRoot.*[I];
+			SET I = I + 1;
+		END WHILE;
+	END;	
+
+
+END MODULE;

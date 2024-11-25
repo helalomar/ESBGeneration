@@ -1,0 +1,6 @@
+{
+  "Body": {
+    "Operation": "GetCustomerDetails",
+    "CustomerID": "67890"
+  }
+}

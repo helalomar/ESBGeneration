@@ -1,0 +1,22 @@
+BROKER SCHEMA Service
+
+-- **************************************************************** --
+-- Developer : {CreatorName} --
+-- Date : {CreationDate}--
+-- Version : -- --
+-- Implementation ID : --
+-- Comments : --
+-- **************************************************************** --
+
+
+
+DECLARE alr NAMESPACE 'http://www.alrajhiwebservices.com/{CategoryName}';
+DECLARE alr1 NAMESPACE 'http://www.alrajhiwebservices.com/';
+DECLARE CTFSuccessErrorCode SHARED CHARACTER 'BUS-000000' ; 
+
+DECLARE SuccessErrorCode SHARED CHARACTER 'I000000' ; 
+DECLARE SuccessErrorDesc SHARED CHARACTER 'Successful Operation' ;
+DECLARE GeneralIntegrationErrorCode SHARED CHARACTER 'E999999';
+DECLARE GeneralIntegrationErrorDesc SHARED CHARACTER 'General Integration Error';
+DECLARE BackendErrorCode SHARED CHARACTER 'E999994';
+DECLARE BackendErrorDesc SHARED CHARACTER 'Error received from backend';

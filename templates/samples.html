@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <title>Samples</title>
+    <style>
+        .container {
+            display: flex;
+        }
+        .xml-container {
+            flex: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            margin: 10px;
+            overflow: auto;
+            height: 80vh;
+            position: relative; /* Allows positioning of the copy button */
+        }
+        .copy-button {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/themes/prism.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <div class="xml-container">
+            <h2>Request</h2>
+            <pre class="language-xml">
+                <code id="Request">
+                    {{ samplerq }}
+                </code>
+            </pre>
+            <button class="copy-button" onclick="copyText('Request')">Copy Code</button>
+        </div>
+        <div class="xml-container">
+            <h2>Response</h2>
+            <pre class="language-xml">
+                <code id="Response">
+                    {{ samplers }}
+                </code>
+            </pre>
+            <button class="copy-button" onclick="copyText('Response')">Copy Code</button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/prism.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/vkbeautify"></script>
+<script>
+    function copyText(id) {
+        const textElement = document.getElementById(id);
+        const text = textElement.textContent;
+        const tempInput = document.createElement('textarea');
+        tempInput.value = text;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+
+        alert('Code copied to clipboard!');
+    }
+
+    // Prettify the XML content
+    const samplerq = `{{ samplerq }}`;
+    const samplers = `{{ samplers }}`;
+
+    const prettyLeftXml = vkbeautify.xml(samplerq);
+    const prettyRightXml = vkbeautify.xml(samplers);
+
+    // Set prettified XML back to the pre tags
+    document.getElementById('Request').textContent = prettyLeftXml;
+    document.getElementById('Response').textContent = prettyRightXml;
+
+    // Highlight code blocks using Prism.js
+    Prism.highlightAll();
+</script>
+</body>
+</html>

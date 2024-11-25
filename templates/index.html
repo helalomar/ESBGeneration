@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>User Input Form</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>User Input Form</h1>
+    <form action="/submit" method="post" enctype="multipart/form-data">
+        <label for="functionality">Function ID:</label>
+        <select id="functionality" name="functionality">
+            <option value="1">1: Samples</option>
+            <option value="2">2: XSD and WSDL</option>
+            <option value="3">3: SCI</option>
+            <option value="4">4: Code skeleton</option>
+        </select><br><br>
+
+        <label for="BECall">BECall:</label>
+        <select id="BECall" name="BECall">
+            <option value="1">1: XML</option>
+            <option value="2">2: JSON</option>
+            <option value="3">3: SOAP</option>
+        </select><br><br>
+
+        <label for="OperationName">OperationName:</label>
+        <input type="text" id="OperationName" name="OperationName" value="DefaultOp"><br><br>
+
+        <label for="CategoryName">CategoryName:</label>
+        <input type="text" id="CategoryName" name="CategoryName" value="AlRajhiDefault"><br><br>
+
+        <label for="SvcID">SvcID:</label>
+        <input type="text" id="SvcID" name="SvcID" value="1000"><br><br>
+
+        <label for="SubSvcID">SubSvcID:</label>
+        <input type="text" id="SubSvcID" name="SubSvcID" value="1000"><br><br>
+
+        <!-- Additional fields for functionality >= 4 -->
+        <!-- Adjust the visibility based on the functionality -->
+        <div id="functionality-4-fields" style="display:none;">
+            <label for="BEName">Backend API Call Name:</label>
+            <input type="text" id="BEName" name="BEName" value="BackendAPIName"><br><br>
+
+            <label for="BE">Backend System ABV Name:</label>
+            <input type="text" id="BE" name="BE" value="BE"><br><br>
+        </div>
+        
+        <label for="messageEntry">Choose message entry:</label>
+        <select id="messageEntry" name="messageEntry">
+            <option value="file">From File</option>
+            <option value="paste">Paste Manually</option>
+        </select><br><br>
+        <!-- Paste message section -->
+        <div id="paste-section" style="display:none;">
+            <div>
+                <label for="Request">Request:</label><br>
+                <textarea id="Request" name="Request" rows="5" cols="50"></textarea>
+            </div>
+            <div>
+                <label for="Response">Response:</label><br>
+                <textarea id="Response" name="Response" rows="5" cols="50"></textarea>
+            </div>
+        </div>
+
+        <input type="submit" value="Submit">
+    </form>
+
+    <script>
+        const functionalityInput = document.getElementById('functionality');
+        const BECallInput = document.getElementById('BECall');
+        const additionalFields = document.getElementById('functionality-4-fields');
+        const fileInputs = document.getElementById('file-inputs');
+        const pasteSection = document.getElementById('paste-section');
+        const messageEntry = document.getElementById('messageEntry');
+
+        functionalityInput.addEventListener('change', function() {
+            if (parseInt(this.value) >= 4) {
+                additionalFields.style.display = 'block';
+            } else {
+                additionalFields.style.display = 'none';
+            }
+        });
+
+        // BECallInput.addEventListener('change', function() {
+        //     const selectedOption = parseInt(this.value);
+        //     if (selectedOption === 1 || selectedOption === 2) {
+        //         pasteSection.style.display = 'none';
+        //     }
+        // });
+
+        messageEntry.addEventListener('change', function() {
+            const selectedOption = this.value;
+            if (selectedOption === 'paste') {
+                pasteSection.style.display = 'block';
+            } else{
+                pasteSection.style.display = 'none';
+            }
+        });
+        function validateXML(xmlString) {
+        try {
+            new DOMParser().parseFromString(xmlString, 'text/xml');
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    function validateJSON(jsonString) {
+        try {
+            JSON.parse(jsonString);
+            return true;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    document.querySelector('form').addEventListener('submit', function(event) {
+        const BECallValue = parseInt(document.getElementById('BECall').value);
+        const messageEntryValue = document.getElementById('messageEntry').value;
+
+        if (messageEntryValue === 'paste') {
+            const requestTextarea = document.getElementById('Request');
+            const responseTextarea = document.getElementById('Response');
+
+            const requestContent = requestTextarea.value;
+            const responseContent = responseTextarea.value;
+
+            if ((BECallValue === 1 && !validateXML(requestContent)) ||
+                (BECallValue === 2 && !validateJSON(requestContent))) {
+                event.preventDefault();
+                alert('Invalid format for Request. Please enter a valid XML or JSON.');
+                return;
+            }
+
+            if ((BECallValue === 1 && !validateXML(responseContent)) ||
+                (BECallValue === 2 && !validateJSON(responseContent))) {
+                event.preventDefault();
+                alert('Invalid format for Response. Please enter a valid XML or JSON.');
+                return;
+            }
+        }
+    });
+    </script>
+</body>
+</html>

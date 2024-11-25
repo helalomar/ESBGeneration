@@ -1,0 +1,10 @@
+<Response>
+    <Body>
+        <Customer>
+            <CustomerID>67890</CustomerID>
+            <Name>John Doe</Name>
+            <Email>john.doe@example.com</Email>
+            <Phone>+1234567890</Phone>
+        </Customer>
+    </Body>
+</Response>

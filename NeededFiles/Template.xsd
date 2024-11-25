@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- edited with XMLSpy v2008 (http://www.altova.com) by TEAM ViRiLiTY (VRL) -->
+<xsd:schema xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:arb="http://www.alrajhiwebservices.com/" xmlns:alr="http://www.alrajhiwebservices.com/{CategoryName}" targetNamespace="http://www.alrajhiwebservices.com/{CategoryName}">
+	<!--<xsd:import namespace="http://www.alrajhiwebservices.com/" schemaLocation="../../../Common/XSD/CommonLibV2.xsd"/>-->
+	<xsd:import namespace="http://www.alrajhiwebservices.com/" schemaLocation="CommonLibV2.xsd"/>
+	<!-- #####################Messages Declarations#################### -->
+	<xsd:element name="{OperationName}Rq" type="alr:{OperationName}Rq_Type"/>
+	<xsd:element name="{OperationName}Rs" type="alr:{OperationName}Rs_Type"/>
+	<!-- #####################Request/Response Declarations#################### -->
+	<xsd:complexType name="{OperationName}Rq_Type">
+		<xsd:sequence>
+			<xsd:element name="Hdr" type="arb:MsgRqHdr_Type"/>
+			<xsd:element name="Body" type="alr:{OperationName}RqBody_Type" />
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="{OperationName}Rs_Type">
+		<xsd:sequence>
+			<xsd:element name="Hdr" type="arb:MsgRsHdr_Type"/>
+			<xsd:element name="Body" type="alr:{OperationName}RsBody_Type" minOccurs="0"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<!-- #####################Body Declarations#################### -->
+	<xsd:complexType name="{OperationName}Rq{BodyHere}
+	<xsd:complexType name="{OperationName}Rs{RBodyHere}
+</xsd:schema>

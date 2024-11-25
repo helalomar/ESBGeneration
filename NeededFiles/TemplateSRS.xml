@@ -1,0 +1,15 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:alr="http://www.alrajhiwebservices.com/{CategoryName}" xmlns:alr1="http://www.alrajhiwebservices.com/">
+	<soapenv:Header/>
+	<soapenv:Body>
+		<alr:{OperationName}Rs>
+			<Hdr>
+				<alr1:Status>
+					<alr1:StatusCd>I000000</alr1:StatusCd>
+					<alr1:StatusDesc>Success</alr1:StatusDesc>
+				</alr1:Status>
+				<alr1:RqID>afdc9d68-68c5-42f9-412b-81c2c34b6ee8</alr1:RqID>
+			</Hdr>
+			{ResBody}
+		</alr:{OperationName}Rs>
+	</soapenv:Body>
+</soapenv:Envelope>

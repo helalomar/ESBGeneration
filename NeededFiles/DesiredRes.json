@@ -1,0 +1,10 @@
+{
+  "Body": {
+    "Customer": {
+      "CustomerID": "67890",
+      "Name": "John Doe",
+      "Email": "john.doe@example.com",
+      "Phone": "+1234567890"
+    }
+  }
+}

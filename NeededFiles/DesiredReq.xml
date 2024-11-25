@@ -1,0 +1,6 @@
+<Request>
+    <Body>
+        <Operation>GetCustomerDetails</Operation>
+        <CustomerID>67890</CustomerID>
+    </Body>
+</Request>

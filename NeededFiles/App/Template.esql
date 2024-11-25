@@ -1,0 +1,42 @@
+BROKER SCHEMA Core
+
+-- **************************************************************** --
+-- Developer : {CreatorName} --
+-- Date : {CreationDate} --
+-- Version : 0.1 --
+-- Implementation ID : --
+-- Comments : 
+-- **************************************************************** --
+
+
+DECLARE {BEName}URL SHARED CHARACTER '';
+CREATE DATABASE MODULE {BEName}_{BE}_PrepareContext
+	CREATE FUNCTION Main() RETURNS BOOLEAN
+	BEGIN
+		
+		DECLARE ENV REFERENCE TO Environment.Variables;
+		IF {BEName}URL = '' THEN
+			CREATE FIELD Environment.Data.{BEName};
+			DECLARE {BEName}Ref REFERENCE TO Environment.Data.{BEName};
+			CALL util.GetBackEndURL({BEName}Ref, '{BEName}_{BE}');
+			SET {BEName}URL = {BEName}Ref.TrgtVal1;
+			SET ENV.Context.URL = {BEName}Ref.TrgtVal1;
+		ELSE
+			SET ENV.Context.URL = {BEName}URL;
+		END IF;
+		
+		DECLARE ref REFERENCE TO ENV.Context.ETSBuyOrderCallBackRq;
+		
+		CREATE FIELD Environment.Variables.Context.{BEName}Req;
+		DECLARE {BEName}Req REFERENCE TO Environment.Variables.Context.{BEName}Req;
+				
+		SET {BEName}Req = ref;		
+		SET {BEName}Req.serviceID = 'INT-{BE}-BAU-003';		
+		SET {BEName}Req.reqTimeStamp =  CAST(CURRENT_TIMESTAMP AS CHARACTER FORMAT 'yyyy-MM-dd HH:mm:ss');
+		SET {BEName}Req.ChannelId = 'ESB';
+		SET {BEName}Req.language = 'EN';
+		
+	END;
+
+END MODULE;
+
