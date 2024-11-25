@@ -653,7 +653,7 @@ def dosamples():
     #print sample response 
     global psampleres
     printsampleres = format_xml(ET.tostring(xml_t_rs, encoding="utf-8").decode())
-    with open(os.path.join(os.getcwd(),"NeededFiles/TemplateSRs.xml"), "r") as samplers:
+    with open("NeededFiles/TemplateSRS.xml", "r") as samplers:
             psampleres = samplers.read().format(OperationName=OperationName,CategoryName=CategoryName, ResBody=printsampleres)
     # printsampleres.write(f"{output_folder}/{sample_folder}/{OperationName}SampleRes.xml")
     with open(f"{output_folder}/{sample_folder}/{OperationName}SampleRes.xml", "w") as file:
