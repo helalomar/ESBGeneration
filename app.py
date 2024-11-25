@@ -80,7 +80,7 @@ def getuserinput():
     functionality = int(request.form.get("functionality", 1))
     BECall = request.form.get("BECall", '2')
     OperationName = request.form.get("OperationName", 'DefaultOp')
-    output_folder = OperationName
+    output_folder = os.path.join(os.getcwd(), OperationName)
     CategoryName = request.form.get("CategoryName", 'AlRajhiDefault')
     SvcID = request.form.get("SvcID", '1000')
     SubSvcID = request.form.get("SubSvcID", '1000')
@@ -92,8 +92,9 @@ def getuserinput():
 
 def doworddoc():
     # Load the altered  Word document
-    doc = Document(f"{output_folder}/{sci_folder}/{SvcID}-{SubSvcID}-SCI {OperationName}.docx")
-    # doc = Document("NeededFiles/TemplateDocx.docx")
+
+    doc = Document(os.path.join(output_folder, sci_folder, f"{SvcID}-{SubSvcID}-SCI {OperationName}.docx"))
+    # doc = Document("web app/NeededFiles/TemplateDocx.docx")
     # Replace placeholders in the document
     for paragraph in doc.paragraphs:
         paragraph.text = paragraph.text.format(SvcID=SvcID, SubSvcID=SubSvcID, OperationName=OperationName,
@@ -119,7 +120,7 @@ def doworddoc():
     doc.save(f"{output_folder}/{sci_folder}/{SvcID}-{SubSvcID}-SCI {OperationName}.docx")
 
 def dosvcandcoreapp():
-    with open("NeededFiles/App/ServiceLib.esql", "r") as svclib_template_file:
+    with open("web app/NeededFiles/App/ServiceLib.esql", "r") as svclib_template_file:
         svclib_template = svclib_template_file.read().format(SvcID=SvcID, SubSvcID=SubSvcID, OperationName=OperationName,
                                                         CategoryName=CategoryName, IP=IP, PORT=PORT,
                                                         CreatorName=CreatorName, OperationMethod=OperationMethod,
@@ -128,7 +129,7 @@ def dosvcandcoreapp():
     with open(f"{output_folder}/{app_folder}/{svc_folder}/ServiceLib.esql", "w") as svclib_out_file:
         svclib_out_file.write(svclib_template)
 
-    with open("NeededFiles/App/template.project", "r") as projectfile_template_file:
+    with open("web app/NeededFiles/App/template.project", "r") as projectfile_template_file:
         projectfile_template = projectfile_template_file.read().format(OperationName=OperationName,
                                                         CategoryName=CategoryName)
 
@@ -144,7 +145,7 @@ def dosvcandcoreapp():
     with open(f"{output_folder}/{app_folder}/{svc_folder}/{OperationName}_Svc.esql", "w") as svcesql_out_file:
         svcesql_out_file.write(svcesql_template)
 
-    with open("NeededFiles/App/Template_Svc.msgflow", "r") as svcmsgflow_template_file:
+    with open("web app/NeededFiles/App/Template_Svc.msgflow", "r") as svcmsgflow_template_file:
         svcmsgflow_template = svcmsgflow_template_file.read().format(SvcID=SvcID, SubSvcID=SubSvcID, OperationName=OperationName,
                                                         CategoryName=CategoryName, IP=IP, PORT=PORT,
                                                         CreatorName=CreatorName, OperationMethod=OperationMethod,
@@ -153,7 +154,7 @@ def dosvcandcoreapp():
     with open(f"{output_folder}/{app_folder}/{svc_folder}/{OperationName}_Svc.msgflow", "w") as svcmsgflow_out_file:
         svcmsgflow_out_file.write(svcmsgflow_template)
 
-    with open("NeededFiles/App/Template.subflow", "r") as coresubflow_template_file:
+    with open("web app/NeededFiles/App/Template.subflow", "r") as coresubflow_template_file:
         coresubflow_template = coresubflow_template_file.read().format(SvcID=SvcID, SubSvcID=SubSvcID, OperationName=OperationName,
                                                         CategoryName=CategoryName, IP=IP, PORT=PORT,
                                                         CreatorName=CreatorName, OperationMethod=OperationMethod,
@@ -162,7 +163,7 @@ def dosvcandcoreapp():
     with open(f"{output_folder}/{app_folder}/{core_folder}/{OperationName}.subflow", "w") as coresubflow_out_file:
         coresubflow_out_file.write(coresubflow_template)
 
-    with open("NeededFiles/App/Template.esql", "r") as coreesql_template_file:
+    with open("web app/NeededFiles/App/Template.esql", "r") as coreesql_template_file:
         coreesql_template = coreesql_template_file.read().format(SvcID=SvcID, SubSvcID=SubSvcID, OperationName=OperationName,
                                                         CategoryName=CategoryName, IP=IP, PORT=PORT,
                                                         CreatorName=CreatorName, OperationMethod=OperationMethod,
@@ -196,11 +197,11 @@ def dowsdlandxsd():
     #endregion 
 
     # Read and replace placeholders in template files
-    with open("NeededFiles/Template.wsdl", "r") as wsdl_template_file:
+    with open("web app/NeededFiles/Template.wsdl", "r") as wsdl_template_file:
         wsdl_template = wsdl_template_file.read().format( OperationName=OperationName,
                                                         CategoryName=CategoryName, IP=IP, PORT=PORT)
 
-    with open("NeededFiles/Template.xsd", "r") as xsd_template_file:
+    with open("web app/NeededFiles/Template.xsd", "r") as xsd_template_file:
         xsd_template = xsd_template_file.read().format( OperationName=OperationName,
                                                     CategoryName=CategoryName, IP=IP, PORT=PORT,
                                                     BodyHere=modified_schema, RBodyHere=modifiedd_schema)
@@ -218,7 +219,7 @@ def dowsdlandxsd():
         with open(f"{output_folder}/{app_folder}/{xsd_folder}/{CategoryName}.xsd", "w") as xsd_out_file:
             xsd_out_file.write(xsd_template)
 
-    with open("NeededFiles/CommonLibV2.xsd", "r") as clib_template:
+    with open("web app/NeededFiles/CommonLibV2.xsd", "r") as clib_template:
         clib_out = clib_template.read()
 
     with open(f"{output_folder}/{xsd_folder}/CommonLibV2.xsd", "w") as Comxsd_out_file:
@@ -602,7 +603,7 @@ def doneedfuldeclartaions():
     if functionality >= 3:
         os.makedirs(os.path.join(output_folder, sci_folder), exist_ok=True)
         #define Document and replicate it
-        wdoc_template = Document("NeededFiles/TemplateDocx.docx")
+        wdoc_template = Document("web app/NeededFiles/TemplateDocx.docx")
         wdoc_template.save(f"{output_folder}/{sci_folder}/{SvcID}-{SubSvcID}-SCI {OperationName}.docx")
     if functionality >= 4:
         os.makedirs(os.path.join(output_folder, app_folder), exist_ok=True)
@@ -611,7 +612,7 @@ def doneedfuldeclartaions():
         os.makedirs(os.path.join(output_folder, app_folder, wsdl_folder), exist_ok=True)
         os.makedirs(os.path.join(output_folder, app_folder, xsd_folder), exist_ok=True)
         # Open the template file in read mode
-        with open("NeededFiles/App/Template_Svc.esql", "r") as svcesqltemp_file:
+        with open("web app/NeededFiles/App/Template_Svc.esql", "r") as svcesqltemp_file:
             # Read the content of the template file
             svcesqltemp_template = svcesqltemp_file.read()
         svcesqltemp_path = f"{output_folder}/{app_folder}/{svc_folder}/{OperationName}_Svc.esql"
@@ -625,15 +626,15 @@ def doneedfuldeclartaions():
         response_message = request.form['Response']
         if BECall in ('1','3'):
             # Save the pasted messages to files
-            with open("NeededFiles/DesiredReq.xml", 'w') as req_file:
+            with open("web app/NeededFiles/DesiredReq.xml", 'w') as req_file:
                 req_file.write(request_message)
-            with open("NeededFiles/DesiredRes.xml", 'w') as res_file:
+            with open("web app/NeededFiles/DesiredRes.xml", 'w') as res_file:
                 res_file.write(response_message)
         elif BECall == '2':
         # Save the pasted messages to files
-            with open("NeededFiles/DesiredReq.json", 'w') as req_file:
+            with open("web app/NeededFiles/DesiredReq.json", 'w') as req_file:
                 req_file.write(request_message)
-            with open("NeededFiles/DesiredRes.json", 'w') as res_file:
+            with open("web app/NeededFiles/DesiredRes.json", 'w') as res_file:
                 res_file.write(response_message)
 
 def dosamples(): 
@@ -641,7 +642,7 @@ def dosamples():
     global printsamplereq
     global printsampleres
     printsamplereq = format_xml(ET.tostring(xml_t_rq, encoding="utf-8").decode())
-    with open("NeededFiles/TemplateSRQ.xml", "r") as samplerq:
+    with open("web app/NeededFiles/TemplateSRQ.xml", "r") as samplerq:
             psamplereq = samplerq.read().format(SvcID=SvcID, SubSvcID=SubSvcID, OperationName=OperationName,
                                                 CategoryName=CategoryName, ReqBody=printsamplereq)
     with open(f"{output_folder}/{sample_folder}/{OperationName}SampleReq.xml", "w") as file:
@@ -652,7 +653,7 @@ def dosamples():
     #print sample response 
     global psampleres
     printsampleres = format_xml(ET.tostring(xml_t_rs, encoding="utf-8").decode())
-    with open("NeededFiles/TemplateSRs.xml", "r") as samplers:
+    with open("web app/NeededFiles/TemplateSRs.xml", "r") as samplers:
             psampleres = samplers.read().format(OperationName=OperationName,CategoryName=CategoryName, ResBody=printsampleres)
     # printsampleres.write(f"{output_folder}/{sample_folder}/{OperationName}SampleRes.xml")
     with open(f"{output_folder}/{sample_folder}/{OperationName}SampleRes.xml", "w") as file:
@@ -663,11 +664,11 @@ def dorequest():
     global xml_t_rq
     if BECall == '1':
         # Load the input XML file
-        input_xml_path = 'NeededFiles/DesiredReq.xml'  # Replace with the actual path to your input XML file
+        input_xml_path = 'web app/NeededFiles/DesiredReq.xml'  # Replace with the actual path to your input XML file
         xml_t_rq = ET.parse(input_xml_path).getroot()
     elif BECall == '2':
         # Read JSON REQ
-        with open('NeededFiles/DesiredReq.json', 'r') as jsonRq_file:
+        with open('web app/NeededFiles/DesiredReq.json', 'r') as jsonRq_file:
             json_Rq = json.load(jsonRq_file)
             #define request root
             xml_t_rq = ET.Element("Body")
@@ -675,7 +676,7 @@ def dorequest():
             json_to_xml(json_Rq, xml_t_rq)
     elif BECall == '3':
         # Load the input XML file
-        input_xml_path = 'NeededFiles/DesiredReq.xml'  # Replace with the actual path to your input XML file
+        input_xml_path = 'web app/NeededFiles/DesiredReq.xml'  # Replace with the actual path to your input XML file
         xml_t_rq = ET.parse(input_xml_path).getroot()
         for elem in xml_t_rq.iter():
             elem.tag = elem.tag.split('}')[-1]  # Remove namespaces
@@ -683,7 +684,6 @@ def dorequest():
 
             
     finetune_xml(xml_t_rq)
-
     #function 3: SCI generation
     if functionality >= 3:
     # Add records to SCI
@@ -705,10 +705,10 @@ def doresponse():
     global xml_t_rs
     if BECall == '1':
         # Load the input XML file
-        inputr_xml_path = 'NeededFiles/DesiredRes.xml'  # Replace with the actual path to your input XML file
+        inputr_xml_path = 'web app/NeededFiles/DesiredRes.xml'  # Replace with the actual path to your input XML file
         xml_t_rs = ET.parse(inputr_xml_path).getroot()
     elif BECall == '2':
-        with open('NeededFiles/DesiredRes.json', 'r') as jsonRs_file:
+        with open('web app/NeededFiles/DesiredRes.json', 'r') as jsonRs_file:
             json_Rs = json.load(jsonRs_file)
             #define request root
             xml_t_rs = ET.Element("Body")
@@ -716,7 +716,7 @@ def doresponse():
             json_to_xml(json_Rs, xml_t_rs)
     elif BECall == '3':
         # Load the input XML file
-        inputr_xml_path = 'NeededFiles/DesiredRes.xml'  # Replace with the actual path to your input XML file
+        inputr_xml_path = 'web app/NeededFiles/DesiredRes.xml'  # Replace with the actual path to your input XML file
         xml_t_rs = ET.parse(inputr_xml_path).getroot()
         for elem in xml_t_rs.iter():
             elem.tag = elem.tag.split('}')[-1]  # Remove namespaces
@@ -781,10 +781,9 @@ def samples_page():
 @app.route('/doutput')
 def sci_page():
     zip_folder(f"{OperationName}",f"{OperationName}.zip")
-    return send_file(f"{OperationName}.zip",as_attachment=True) 
+    return send_file(os.path.join(os.getcwd(), f"{OperationName}.zip"), as_attachment=True)
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000)
 
 
-# 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
